@@ -3,14 +3,14 @@ import { createUser, listUsers, getUserDetails, updateUser, deleteUser } from ".
 
 interface User {
     id: string;
+    uid: string;
     name: string;
-    email: string;
 }
 
 const UserManagement = () => {
     const [users, setUsers] = useState<User[]>([]);
+    const [uid, setUid] = useState("");
     const [name, setName] = useState("");
-    const [email, setEmail] = useState("");
     const [userId, setUserId] = useState("");
 
     useEffect(() => {
@@ -18,48 +18,93 @@ const UserManagement = () => {
     }, []);
 
     const loadUsers = async () => {
-        const data = await listUsers();
-        setUsers(Array.isArray(data) ? data : data.users || []);
+        try {
+            const data = await listUsers();
+            setUsers(Array.isArray(data) ? data : data.users || []);
+        } catch (error) {
+            console.error("Error loading users:", error);
+            alert("Failed to load users.");
+        }
     };
 
     const handleCreateUser = async () => {
-        await createUser({ name, email });
-        loadUsers();
+        if (!uid || !name) {
+            alert("UID and Name are required.");
+            return;
+        }
+        try {
+            await createUser({ uid, name });
+            loadUsers();
+        } catch (error) {
+            console.error("Create failed:", error);
+            alert("Failed to create user.");
+        }
     };
 
     const handleGetUser = async () => {
-        const user = await getUserDetails(userId);
-        alert(`User: ${user.name}, Email: ${user.email}`);
+        if (!userId) {
+            alert("Please enter a User ID.");
+            return;
+        }
+        try {
+            const user = await getUserDetails(userId);
+            alert(`User: ${user.name}, UID: ${user.uid}`);
+        } catch (error) {
+            console.error("Get user failed:", error);
+            alert("User not found.");
+        }
     };
 
     const handleUpdateUser = async () => {
-        await updateUser(userId, { name, email });
-        loadUsers();
+        if (!userId || !name) {
+            alert("User ID and Name are required.");
+            return;
+        }
+        try {
+            await updateUser(userId, { name });
+            loadUsers();
+        } catch (error) {
+            console.error("Update failed:", error);
+            alert("Failed to update user.");
+        }
     };
 
     const handleDeleteUser = async () => {
-        await deleteUser(userId);
-        loadUsers();
+        if (!userId) {
+            alert("Please enter a User ID.");
+            return;
+        }
+        try {
+            await deleteUser(userId);
+            loadUsers();
+        } catch (error) {
+            console.error("Delete failed:", error);
+            alert("Failed to delete user.");
+        }
     };
 
     return (
         <div>
             <h1>User Management</h1>
 
-            <input type="text" placeholder="User ID" onChange={(e) => setUserId(e.target.value)} />
+            <input type="text" placeholder="User ID" value={userId} onChange={(e) => setUserId(e.target.value)} />
             <button onClick={handleGetUser}>Get User</button>
 
-            <input type="text" placeholder="Name" onChange={(e) => setName(e.target.value)} />
-            <input type="email" placeholder="Email" onChange={(e) => setEmail(e.target.value)} />
+            <input type="text" placeholder="UID" value={uid} onChange={(e) => setUid(e.target.value)} />
+            <input type="text" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} />
             <button onClick={handleCreateUser}>Create User</button>
             <button onClick={handleUpdateUser}>Update User</button>
             <button onClick={handleDeleteUser}>Delete User</button>
 
             <h2>Users List</h2>
             <ul>
-                {users.map((user) => (
-                    <li key={user.id}>{user.name} - {user.email}</li>
-                ))}
+                {users.length > 0 ? (
+                    users.map((user) => (
+                        <li key={user.id}>{user.name} (UID: {user.uid})</li>
+                    ))
+                ) : (
+                    <p>No users found.</p>
+                )}
             </ul>
         </div>
     );

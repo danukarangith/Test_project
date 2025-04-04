@@ -11,27 +11,90 @@ const api = axios.create({
     },
 });
 
+
 export const createUser = async (userData: any) => {
-    const response = await api.post("/users", userData);
+    const {
+        uid,
+        name,
+        given_name,
+        middle_name,
+        family_name,
+        nickname,
+        email,
+        phone_number,
+        comment,
+        picture,
+        directory,
+        metadata,
+        tags,
+    } = userData;
+
+    const response = await api.post("/api/users", {
+        uid,
+        name,
+        given_name,
+        middle_name,
+        family_name,
+        nickname,
+        email,
+        phone_number,
+        comment,
+        picture,
+        directory,
+        metadata,
+        tags,
+    });
     return response.data;
 };
+
 
 export const listUsers = async () => {
-    const response = await api.get("/users");
+    const response = await api.get("/api/users");
     return response.data;
 };
+
 
 export const getUserDetails = async (userId: string) => {
-    const response = await api.get(`/users/${userId}`);
+    const response = await api.get(`/api/users/${userId}`);
     return response.data;
 };
+
 
 export const updateUser = async (userId: string, userData: any) => {
-    const response = await api.patch(`/users/${userId}`, userData);
+    const {
+        name,
+        given_name,
+        middle_name,
+        family_name,
+        nickname,
+        email,
+        phone_number,
+        comment,
+        picture,
+        directory,
+        metadata,
+        tags,
+    } = userData;
+
+    const response = await api.patch(`/api/users/${userId}`, {
+        name,
+        given_name,
+        middle_name,
+        family_name,
+        nickname,
+        email,
+        phone_number,
+        comment,
+        picture,
+        directory,
+        metadata,
+        tags,
+    });
     return response.data;
 };
 
+
 export const deleteUser = async (userId: string) => {
-    const response = await api.delete(`/users/${userId}`);
+    const response = await api.delete(`/api/users/${userId}`);
     return response.data;
 };
